@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+body {
+    font-family: Arial;
+    margin: 40px;
+}
+input {
+    padding: 8px;
+    margin: 5px;
+}
+button {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+</style>
+    <title>DSA Analytics System</title>
+</head>
+<body>
+
+<h2>Add Problem</h2>
+
+<form id="form">
+    <input type="text" id="name" placeholder="Problem Name" required><br><br>
+    <input type="text" id="topic" placeholder="Topic" required><br><br>
+    <input type="text" id="difficulty" placeholder="Difficulty" required><br><br>
+    <input type="text" id="status" placeholder="Status" required><br><br>
+    <button type="submit">Add</button>
+</form>
+
+<h2>Problems</h2>
+<ul id="list"></ul>
+<h2>Stats</h2>
+<div id="stats"></div>
+<script>
+document.getElementById("form").onsubmit = async (e) => {
+    e.preventDefault();
+
+    const data = {
+        name: document.getElementById("name").value,
+        topic: document.getElementById("topic").value,
+        difficulty: document.getElementById("difficulty").value,
+        status: document.getElementById("status").value
+    };
+
+    await fetch('/add-problem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    loadProblems();
+};
+
+async function deleteProblem(id) {
+    await fetch(`/delete/${id}`, {
+        method: 'DELETE'
+    });
+    loadProblems();
+}
+
+async function loadStats() {
+    const res = await fetch('/stats');
+    const data = await res.json();
+
+    document.getElementById("stats").innerText =
+        `Solved: ${data.total_solved}`;
+}
+
+async function loadProblems() {
+    const res = await fetch('/problems');
+    const data = await res.json();
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(p => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${p.name} - ${p.topic} - ${p.status}
+            <button onclick="deleteProblem(${p.id})">Delete</button>
+        `;
+        list.appendChild(li);
+    });
+
+    loadStats();
+}
+
+loadProblems();
+</script>
+</body>
+</html>

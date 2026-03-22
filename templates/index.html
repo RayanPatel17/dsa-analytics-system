@@ -33,6 +33,8 @@ button {
 <ul id="list"></ul>
 <h2>Stats</h2>
 <div id="stats"></div>
+<h2>Recommendation</h2>
+<div id="recommend"></div>
 <script>
 document.getElementById("form").onsubmit = async (e) => {
     e.preventDefault();
@@ -85,9 +87,17 @@ async function loadProblems() {
     });
 
     loadStats();
+    loadRecommendation();
 }
 
 loadProblems();
+async function loadRecommendation() {
+    const res = await fetch('/recommend');
+    const data = await res.json();
+
+    document.getElementById("recommend").innerText =
+        data.message;
+}
 </script>
 </body>
 </html>
